@@ -7,4 +7,6 @@
             
         </apex:pageBlockTable>
     </apex:pageBlock>
+    <br>
+    <apex:outputLink value="https://github.com/atamyo/trailhead-leaderboard" target="_blank">Source Code</apex:outputLink>
 </apex:page>

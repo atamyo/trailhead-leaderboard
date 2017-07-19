@@ -2,8 +2,8 @@ public class TrailheadLeaderboardController {
     public List<Trailhead_User__c> trailheadUsers {get;set;}
     
     public TrailheadLeaderboardController() {
-		trailheadUsers = [SELECT Id, Name, Badges__c, Points__c
-                     FROM Trailhead_User__c];
+		trailheadUsers = [SELECT Id, Name, Badges__c, Points__c, Point_to_Badge_Ratio__c
+                     FROM Trailhead_User__c ORDER BY Point_to_Badge_Ratio__c DESC];
     }
     
     public static Map<String, String> getInfoFromPage(String url) {

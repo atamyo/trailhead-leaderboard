@@ -8,7 +8,7 @@
         </apex:pageBlockTable>
     </apex:pageBlock>
     <br>
-    <apex:form>
+    <apex:form >
         <apex:commandButton value="Refresh Leaderboard Values" action="{! refreshLeaderboard }"/>
     </apex:form>
     <br>

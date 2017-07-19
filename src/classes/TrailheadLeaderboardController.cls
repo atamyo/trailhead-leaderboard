@@ -1,10 +1,59 @@
 public class TrailheadLeaderboardController {
-    public List<Trailhead_User__c> trailheadUsers {get;set;}
+    public List<Trailhead_User__c> trailheadUsers {get; set;}
+    
+    public String sortField = 'Badges__c';
+    public String sortIn = 'DESC';
     
     public TrailheadLeaderboardController() {
-		trailheadUsers = [SELECT Id, Name, Badges__c, Points__c, Point_to_Badge_Ratio__c
-                     FROM Trailhead_User__c ORDER BY Point_to_Badge_Ratio__c DESC];
+        
+        trailheadUsers = [SELECT Id__c, Name, Badges__c, Points__c
+                         FROM Trailhead_User__c
+                         ORDER BY Badges__c DESC];
     }
+    
+    // Broken sort code
+    /*
+    public List<Trailhead_User__c> getTrailheadUsers() {
+        
+        List<Trailhead_User__c> results = Database.query(
+            'SELECT Id, Name, Badges__c, Points__c, ' +
+            'FROM Trailhead_User__c ' +
+            'ORDER BY ' + sortField + ' ' + sortIn
+        );
+        
+        return results;
+    }
+    
+    public void setTrailheadUsers(List<Trailhead_User__c> tUsers) {
+        trailheadUsers = tUsers;
+    }
+    
+    public TrailheadLeaderboardController() {
+
+        //trailheadUsers = getTrailheadUsers();
+        trailheadUsers = Database.query(
+            'SELECT Id, Name, Badges__c, Points__c, ' +
+            'FROM Trailhead_User__c ' +
+            'ORDER BY ' + sortField + ' ' + sortIn
+        );
+    }
+    
+    public void sortByBadges() {
+        this.sortField = 'Badges__c';
+    }
+    
+    public void sortByPoints() {
+        this.sortField = 'Points__c';
+    }
+    
+    public void sortInAsc() {
+        this.sortIn = 'ASC';
+    }
+    
+    public void sortInDesc() {
+        this.sortIn = 'DESC';
+    }
+*/
     
     public static Map<String, String> getInfoFromPage(String url) {
         
@@ -110,6 +159,5 @@ public class TrailheadLeaderboardController {
         return refreshPage;
         
     }
-
 
 }

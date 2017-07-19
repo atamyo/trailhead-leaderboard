@@ -3,12 +3,16 @@
         <apex:pageBlockTable value="{! trailheadUsers }" var="tu">
             <apex:column value="{! tu.Name }"/>
             <apex:column value="{! tu.Badges__c }"/>
+                <!--apex:facet name="header">
+                    <apex:commandLink action={! sortByBadges
+                </apex:facet>
+            </apex:column-->
             <apex:column value="{! tu.Points__c }"/>
             
         </apex:pageBlockTable>
     </apex:pageBlock>
     <br>
-    <apex:form >
+    <apex:form>
         <apex:commandButton value="Refresh Leaderboard Values" action="{! refreshLeaderboard }"/>
     </apex:form>
     <br>

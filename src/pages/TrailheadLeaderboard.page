@@ -1,0 +1,10 @@
+<apex:page controller="TrailheadLeaderboardController" showHeader="false" sidebar="false">
+    <apex:pageBlock title="Trailhead Leaderboard">
+        <apex:pageBlockTable value="{! trailheadUsers }" var="tu">
+            <apex:column value="{! tu.Name }"/>
+            <apex:column value="{! tu.Badges__c }"/>
+            <apex:column value="{! tu.Points__c }"/>
+            
+        </apex:pageBlockTable>
+    </apex:pageBlock>
+</apex:page>

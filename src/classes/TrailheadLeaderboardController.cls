@@ -21,54 +21,6 @@ public class TrailheadLeaderboardController {
         
     }
     
-    /*
-     * Sorting methods for records
-     */
-    
-    public void sortByName() {
-        this.prevSortField = this.sortField;
-        this.sortField = 'Name';
-        sortHandler();
-    }
-    
-    public void sortByBadges() {
-        this.prevSortField = this.sortField;
-        this.sortField = 'Badges__c';
-        sortHandler();
-    }
-    
-    public void sortByPoints() {
-        this.prevSortField = this.sortField;
-        this.sortField = 'Points__c';
-        sortHandler();
-    }
-    
-    public void sortInAsc() {
-        this.sortIn = 'ASC';
-    }
-    
-    public void sortInDesc() {
-        this.sortIn = 'DESC';
-    }
-    
-    public void switchSortIn() {
-        if (this.sortIn == 'ASC') {
-            sortInDesc();
-        }
-        else {
-            sortInAsc();
-        }
-    }
-    
-    public void sortHandler() {
-        if (this.prevSortField == this.sortField) {
-            switchSortIn();
-        }
-        else {
-            sortInAsc();
-        }
-    }
-
     public static Map<String, String> getInfoFromPage(String url) {
         
         // Set up a map to hold Trailhead user information parsed from their public profile
@@ -173,5 +125,49 @@ public class TrailheadLeaderboardController {
         return refreshPage;
         
     }
-
+    
+    /*
+     * Sorting methods for records
+     */
+    
+    public void sortByName() {
+        sortHandler('Name');
+    }
+    
+    public void sortByBadges() {
+        sortHandler('Badges__c');
+    }
+    
+    public void sortByPoints() {
+        sortHandler('Points__c');
+    }
+    
+    public void sortHandler(String field) {
+        this.prevSortField = this.sortField;
+        this.sortField = field;
+        
+        if (this.prevSortField == this.sortField) {
+            toggleSortIn();
+        }
+        else {
+            sortInAsc();
+        }
+    }
+    
+    public void toggleSortIn() {
+        if (this.sortIn == 'ASC') {
+            sortInDesc();
+        }
+        else {
+            sortInAsc();
+        }
+    }
+    
+    public void sortInAsc() {
+        this.sortIn = 'ASC';
+    }
+    
+    public void sortInDesc() {
+        this.sortIn = 'DESC';
+    }
 }

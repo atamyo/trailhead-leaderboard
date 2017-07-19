@@ -1,22 +1,15 @@
 public class TrailheadLeaderboardController {
-    public List<Trailhead_User__c> trailheadUsers {get; set;}
     
-    public String sortField = 'Badges__c';
-    public String sortIn = 'DESC';
+    public String sortField = 'Name';
+    public String sortIn = 'ASC';
     
-    public TrailheadLeaderboardController() {
-        
-        trailheadUsers = [SELECT Id__c, Name, Badges__c, Points__c
-                         FROM Trailhead_User__c
-                         ORDER BY Badges__c DESC];
-    }
-    
-    // Broken sort code
-    /*
+    public String prevSortField = sortField;
+    public Integer sortCount = 0;
+
     public List<Trailhead_User__c> getTrailheadUsers() {
         
         List<Trailhead_User__c> results = Database.query(
-            'SELECT Id, Name, Badges__c, Points__c, ' +
+            'SELECT Id, Name, Badges__c, Points__c ' +
             'FROM Trailhead_User__c ' +
             'ORDER BY ' + sortField + ' ' + sortIn
         );
@@ -24,26 +17,30 @@ public class TrailheadLeaderboardController {
         return results;
     }
     
-    public void setTrailheadUsers(List<Trailhead_User__c> tUsers) {
-        trailheadUsers = tUsers;
+    public TrailheadLeaderboardController() {
+        
     }
     
-    public TrailheadLeaderboardController() {
-
-        //trailheadUsers = getTrailheadUsers();
-        trailheadUsers = Database.query(
-            'SELECT Id, Name, Badges__c, Points__c, ' +
-            'FROM Trailhead_User__c ' +
-            'ORDER BY ' + sortField + ' ' + sortIn
-        );
+    /*
+     * Sorting methods for records
+     */
+    
+    public void sortByName() {
+        this.prevSortField = this.sortField;
+        this.sortField = 'Name';
+        sortHandler();
     }
     
     public void sortByBadges() {
+        this.prevSortField = this.sortField;
         this.sortField = 'Badges__c';
+        sortHandler();
     }
     
     public void sortByPoints() {
+        this.prevSortField = this.sortField;
         this.sortField = 'Points__c';
+        sortHandler();
     }
     
     public void sortInAsc() {
@@ -53,8 +50,25 @@ public class TrailheadLeaderboardController {
     public void sortInDesc() {
         this.sortIn = 'DESC';
     }
-*/
     
+    public void switchSortIn() {
+        if (this.sortIn == 'ASC') {
+            sortInDesc();
+        }
+        else {
+            sortInAsc();
+        }
+    }
+    
+    public void sortHandler() {
+        if (this.prevSortField == this.sortField) {
+            switchSortIn();
+        }
+        else {
+            sortInAsc();
+        }
+    }
+
     public static Map<String, String> getInfoFromPage(String url) {
         
         // Set up a map to hold Trailhead user information parsed from their public profile

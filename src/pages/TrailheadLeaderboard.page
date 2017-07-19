@@ -1,20 +1,38 @@
 <apex:page controller="TrailheadLeaderboardController" showHeader="false" sidebar="false">
+    <apex:form >
     <apex:pageBlock title="Trailhead Leaderboard" id="leaderboard">
         <apex:pageBlockTable value="{! trailheadUsers }" var="tu">
-            <apex:column value="{! tu.Name }"/>
-            <apex:column value="{! tu.Badges__c }"/>
-                <!--apex:facet name="header">
-                    <apex:commandLink action={! sortByBadges
+            
+            <apex:column value="{! tu.Name }">
+                <apex:facet name="header">
+                    <apex:commandLink action="{! sortByName }" reRender="leaderboard">
+                        Name
+                    </apex:commandLink>
                 </apex:facet>
-            </apex:column-->
-            <apex:column value="{! tu.Points__c }"/>
+            </apex:column>
+ 
+            <apex:column value="{! tu.Badges__c }">
+                <apex:facet name="header">
+                    <apex:commandLink action="{! sortByBadges }" reRender="leaderboard">
+                        Badges
+                    </apex:commandLink>
+                </apex:facet>
+            </apex:column>
+            
+            <apex:column value="{! tu.Points__c }">
+                <apex:facet name="header">
+                    <apex:commandLink action="{! sortByPoints }" reRender="leaderboard">
+                        Points
+                    </apex:commandLink>
+                </apex:facet>
+            </apex:column>
             
         </apex:pageBlockTable>
     </apex:pageBlock>
     <br>
-    <apex:form>
-        <apex:commandButton value="Refresh Leaderboard Values" action="{! refreshLeaderboard }"/>
+    
+        <apex:commandButton value="Refresh Leaderboard Values" action="{! refreshLeaderboard }"/>    
+    <br><br>
     </apex:form>
-    <br>
     <apex:outputLink value="https://github.com/atamyo/trailhead-leaderboard" target="_blank">Source Code</apex:outputLink>
 </apex:page>

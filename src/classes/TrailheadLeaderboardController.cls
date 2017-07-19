@@ -8,14 +8,15 @@ public class TrailheadLeaderboardController {
     }
     
     public static void upsertUserTest(String profileUrl) {
-        // Try getting html from my public trailhead page
-		//String profileUrl = 'https://trailhead.salesforce.com/en/users/profiles/00550000006wMoaAAE';
+
         Map<String, String> tuInfo = getInfoFromPage(profileUrl);
         upsertTrailheadUser(tuInfo);
+        
     }
     
     public static Map<String, String> getInfoFromPage(String url) {
         
+        // Set up a map to hold Trailhead user information parsed from their public profile
         Map<String, String> trailheadUserInfo = new Map<String, String>();
         List<String> trailheadUserFields = new List<String>();
         trailHeadUserFields.add('Id__c');
@@ -26,11 +27,13 @@ public class TrailheadLeaderboardController {
         for (String fieldName : trailheadUserFields) {
             trailheadUserInfo.put(fieldName, '');
         }
-               
+        
+        // Retrieve public profile page source       
         PageReference trailheadProfile = new PageReference(url);
         Blob pageSourceBlob = trailheadProfile.getContent();
         String pageSourceStr = pageSourceBlob.toString();
         
+        // Capture user information from page source, and save it to the user information map
         String urlStr = 'https://trailhead.salesforce.com/en/users/profiles/(\\S*)';
         String nameStr = '<span class=\'th-profile-fullname\'>\\n(\\S*\\s\\S*)\\n</span>';
         String badgesStr = 'Badges\\n</h3>\\n</div>\\n<div class=\'panel-body text-center\'>\\n<h4 class=\'th-profile-title th-profile-title--green leading-marg-m\'>\\n(\\S*)\\n</h4>';
@@ -46,24 +49,16 @@ public class TrailheadLeaderboardController {
         Matcher badgesRegex = badgesPattern.matcher(pageSourceStr);
         Matcher pointsRegex = pointsPattern.matcher(pageSourceStr);
         
-        // Get Id
         if (urlRegex.find()) {
-            System.debug(urlRegex.group(1));
             trailheadUserInfo.put('Id__c', urlRegex.group(1));
         }
-        // Get Name
         if (nameRegex.find()) {
-            System.debug(nameRegex.group(1));
             trailheadUserInfo.put('Name', nameRegex.group(1));
         }
-        // Get Badges
         if (badgesRegex.find()) {
-            System.debug(badgesRegex.group(1));
             trailheadUserInfo.put('Badges__c', badgesRegex.group(1));
         }
-        // Get Points
         if (pointsRegex.find()) {
-            System.debug(pointsRegex.group(1));
             trailheadUserInfo.put('Points__c', pointsRegex.group(1));
         }
 
@@ -101,7 +96,7 @@ public class TrailheadLeaderboardController {
         else {
             Trailhead_User__c tuser = [SELECT Id__c FROM Trailhead_User__c WHERE Id__c =: userId LIMIT 1];
         	tuser.Name = trailheadUserInfo.get('Name');
-        	tuser.Badges__c = Integer.valueOf(trailheadUserInfo.get('Badges__c'));
+        	tuser.Badges__c = Integer.valueOf(trailheadUserInfo.get('Badges__c').replaceAll(',', ''));
         	tuser.Points__c = Integer.valueOf(trailheadUserInfo.get('Points__c').replaceAll(',', ''));
         
         	update tuser;
@@ -112,8 +107,31 @@ public class TrailheadLeaderboardController {
     
     public static Boolean isNewUser(String userId) {
         
-        List<Trailhead_User__c> tUsers = [SELECT Id__c FROM Trailhead_User__c WHERE Id__c =: userId LIMIT 1];        
+        List<Trailhead_User__c> tUsers = [SELECT Id__c FROM Trailhead_User__c WHERE Id__c =: userId LIMIT 1]; // empty if user with specified Id is not in the leaderboard
         return tUsers.size() == 0;
+        
+    }
+    
+    public static void refreshLeaderboard() {
+    	
+    	List<Trailhead_User__c> tUsers = [SELECT Id__c, Name, Badges__c, Points__c FROM Trailhead_User__c];
+    	Map<String, Trailhead_User__c> tUsersInfo = new Map<String, Trailhead_User__c>();
+        Map<String, String> singleTUserInfo = new Map<String, String>();
+        
+        for (Trailhead_User__c tUser : tUsers) {
+            tUsersInfo.put(tUser.Id__c, tUser);
+        }
+        
+    	// Update all users' Trailhead information
+    	for (Trailhead_User__c tUser : tUsers) {
+            singleTUserInfo.clear();
+            singleTUserInfo = getInfoFromPage('https://trailhead.salesforce.com/en/users/profiles/' + tUser.Id__c);
+    		tUsersInfo.get(tUser.Id__c).Name = singleTUserInfo.get('Name');
+            tUsersInfo.get(tUser.Id__c).Badges__c = Integer.valueOf(singleTUserInfo.get('Badges__c').replaceAll(',', ''));
+            tUsersInfo.get(tUser.Id__c).Points__c = Integer.valueOf(singleTUserInfo.get('Points__c').replaceAll(',', ''));
+    	}
+        
+        update tUsersInfo.values();
     }
 
 }

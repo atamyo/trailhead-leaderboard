@@ -4,14 +4,6 @@ public class TrailheadLeaderboardController {
     public TrailheadLeaderboardController() {
 		trailheadUsers = [SELECT Id, Name, Badges__c, Points__c
                      FROM Trailhead_User__c];
-        
-    }
-    
-    public static void upsertUserTest(String profileUrl) {
-
-        Map<String, String> tuInfo = getInfoFromPage(profileUrl);
-        upsertTrailheadUser(tuInfo);
-        
     }
     
     public static Map<String, String> getInfoFromPage(String url) {
@@ -65,43 +57,16 @@ public class TrailheadLeaderboardController {
         return trailheadUserInfo;
     }
     
-    public static void upsertTrailheadUser(Map<String, String> trailheadUserInfo) {
-        
-        /*
-        // Attempting to dynamically create records
-        sObject obj = Schema.getGlobalDescribe().get('Trailhead_User__c').newSObject();
-        
-        for (String fieldName : trailheadUserInfo.keySet()) {
-            obj.put(fieldName, trailheadUserInfo.get(fieldName));
-        }
-        
-        Trailhead_User__c tuser = (Trailhead_User__c) obj;
-        insert tuser;
-*/
-        // Fake upsert for now
-        
-        String userId = trailheadUserInfo.get('Id__c');
-                 
-        // Insert new Trailhead User
-        if (isNewUser(userId)) {
-            Trailhead_User__c tuser = new Trailhead_User__c();
-        	tuser.Id__c = trailheadUserInfo.get('Id__c');
-        	tuser.Name = trailheadUserInfo.get('Name');
-        	tuser.Badges__c = Integer.valueOf(trailheadUserInfo.get('Badges__c'));
-        	tuser.Points__c = Integer.valueOf(trailheadUserInfo.get('Points__c').replaceAll(',', ''));
-        
-        	insert tuser;           
-        }
-        // Update existing Trailhead User
-        else {
-            Trailhead_User__c tuser = [SELECT Id__c FROM Trailhead_User__c WHERE Id__c =: userId LIMIT 1];
-        	tuser.Name = trailheadUserInfo.get('Name');
-        	tuser.Badges__c = Integer.valueOf(trailheadUserInfo.get('Badges__c').replaceAll(',', ''));
-        	tuser.Points__c = Integer.valueOf(trailheadUserInfo.get('Points__c').replaceAll(',', ''));
-        
-        	update tuser;
-        }
+    public static void insertTrailheadUser(Map<String, String> trailheadUserInfo) {
         	
+        Trailhead_User__c tuser = new Trailhead_User__c();
+        
+        tuser.Id__c = trailheadUserInfo.get('Id__c');
+        tuser.Name = trailheadUserInfo.get('Name');
+        tuser.Badges__c = Integer.valueOf(trailheadUserInfo.get('Badges__c'));
+        tuser.Points__c = Integer.valueOf(trailheadUserInfo.get('Points__c').replaceAll(',', ''));
+        
+        insert tuser;  
         
     }
     
@@ -112,7 +77,7 @@ public class TrailheadLeaderboardController {
         
     }
     
-    public static void refreshLeaderboard() {
+    public static void updateAllTrailheadUsers() {
     	
     	List<Trailhead_User__c> tUsers = [SELECT Id__c, Name, Badges__c, Points__c FROM Trailhead_User__c];
     	Map<String, Trailhead_User__c> tUsersInfo = new Map<String, Trailhead_User__c>();
@@ -132,6 +97,19 @@ public class TrailheadLeaderboardController {
     	}
         
         update tUsersInfo.values();
+
     }
+    
+    public PageReference refreshLeaderboard() {
+        
+        updateAllTrailheadUsers();
+        
+        String url = 'http://angelinetamayo-developer-edition.na50.force.com/TrailheadLeaderboard';       
+        PageReference refreshPage = new PageReference(url);
+        refreshPage.setRedirect(true);
+        return refreshPage;
+        
+    }
+
 
 }

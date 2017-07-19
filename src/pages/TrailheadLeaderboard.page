@@ -1,5 +1,5 @@
 <apex:page controller="TrailheadLeaderboardController" showHeader="false" sidebar="false">
-    <apex:pageBlock title="Trailhead Leaderboard">
+    <apex:pageBlock title="Trailhead Leaderboard" id="leaderboard">
         <apex:pageBlockTable value="{! trailheadUsers }" var="tu">
             <apex:column value="{! tu.Name }"/>
             <apex:column value="{! tu.Badges__c }"/>
@@ -7,6 +7,10 @@
             
         </apex:pageBlockTable>
     </apex:pageBlock>
+    <br>
+    <apex:form>
+        <apex:commandButton value="Refresh Leaderboard Values" action="{! refreshLeaderboard }"/>
+    </apex:form>
     <br>
     <apex:outputLink value="https://github.com/atamyo/trailhead-leaderboard" target="_blank">Source Code</apex:outputLink>
 </apex:page>

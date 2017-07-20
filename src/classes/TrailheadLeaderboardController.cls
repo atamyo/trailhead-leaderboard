@@ -18,9 +18,52 @@ public class TrailheadLeaderboardController {
     }
     
     public TrailheadLeaderboardController() {
+        
         this.inputUserId = '';        
     }
     
+    /**
+     * Verifies user-input Trailhead User ID and adds the Trailhead User to the leaderboard.
+     */
+    public void addToLeaderboard() {
+        
+        ApexPages.Message invalidUserId = new ApexPages.Message(ApexPages.Severity.ERROR, 'Please enter a valid Trailhead User ID. This is found in the URL of a public Trailhead profile page as an 18-character alphanumeric string (e.g. 0055xxxxxxxxxxxxxx).');
+        ApexPages.Message existingUserId = new ApexPages.Message(ApexPages.Severity.ERROR, 'This user is already in the leaderboard.');        
+        
+        // Shoddy User Id validation
+        if (!this.inputUserId.isAlphanumeric()) {
+            ApexPages.addMessage(invalidUserId);            
+        }    
+        else if (isNewUser(this.inputUserId)) {
+            Map<String, String> userInfo = getInfoFromPage(this.inputUserId);
+            
+            if (userInfo != null) {
+                insertTrailheadUser(userInfo);
+            }
+            else {      
+                ApexPages.addMessage(invalidUserId);
+            }         
+        }
+        else {
+            ApexPages.addMessage(existingUserId);
+        }
+        
+        this.inputUserId = ''; // clear Trailhead User ID input text field
+    }
+    
+    /**
+     * Checks if Trailhead User already exists in the leaderboard.
+     */
+    public static Boolean isNewUser(String userId) {
+        
+        List<Trailhead_User__c> tUsers = [SELECT Id__c FROM Trailhead_User__c WHERE Id__c =: userId LIMIT 1]; // empty if user with specified Id is not in the leaderboard
+        return tUsers.size() == 0;        
+    }
+    
+    /**
+     * Parses the page source of a Trailhead profile page given a Trailhead User ID,
+     * and returns a map containing the User's ID, Name, Badge Count, and Points.
+     */
     public static Map<String, String> getInfoFromPage(String userId) {
         
         String url = 'https://trailhead.salesforce.com/en/users/profiles/' + userId;
@@ -80,33 +123,10 @@ public class TrailheadLeaderboardController {
 
         return trailheadUserInfo;
     }
-    
-    public void addToLeaderboard() {
-        ApexPages.Message invalidUserId = new ApexPages.Message(ApexPages.Severity.ERROR, 'Please enter a valid Trailhead User ID. This is found in the URL of a public Trailhead profile page as an 18-character alphanumeric string (e.g. 0055xxxxxxxxxxxxxx).');
-        ApexPages.Message existingUserId = new ApexPages.Message(ApexPages.Severity.ERROR, 'This user is already in the leaderboard.');        
         
-        // Shoddy User Id validation
-        if (!this.inputUserId.isAlphanumeric()) {
-            ApexPages.addMessage(invalidUserId);            
-        }    
-        else if (isNewUser(this.inputUserId)) {
-            Map<String, String> userInfo = getInfoFromPage(this.inputUserId);
-            
-            if (userInfo != null) {
-                insertTrailheadUser(userInfo);
-            }
-            else {      
-                ApexPages.addMessage(invalidUserId);
-            }         
-        }
-        else {
-            ApexPages.addMessage(existingUserId);
-        }
-        
-        this.inputUserId = ''; // clear Trailhead User ID input text field
-    }
-
-    
+    /**
+     * Inserts a Trailhead User record into Salesforce given a map of user info using a DML operation.
+     */
     public static void insertTrailheadUser(Map<String, String> trailheadUserInfo) {
         	
         Trailhead_User__c tuser = new Trailhead_User__c();
@@ -116,17 +136,25 @@ public class TrailheadLeaderboardController {
         tuser.Badges__c = Integer.valueOf(trailheadUserInfo.get('Badges__c'));
         tuser.Points__c = Integer.valueOf(trailheadUserInfo.get('Points__c').replaceAll(',', ''));
         
-        insert tuser;  
-        
+        insert tuser;        
     }
     
-    public static Boolean isNewUser(String userId) {
+    /**
+     * Refreshes the page after invoking a method that updates all Trailhead Users' information.
+     */
+    public PageReference refreshLeaderboard() {
         
-        List<Trailhead_User__c> tUsers = [SELECT Id__c FROM Trailhead_User__c WHERE Id__c =: userId LIMIT 1]; // empty if user with specified Id is not in the leaderboard
-        return tUsers.size() == 0;
-        
+        updateAllTrailheadUsers();
+     
+        String url = 'http://angelinetamayo-developer-edition.na50.force.com/TrailheadLeaderboard';       
+        PageReference refreshPage = new PageReference(url);
+        refreshPage.setRedirect(true);
+        return refreshPage;       
     }
     
+    /**
+     * Updates the information of all Trailhead Users in the leaderboard via a bulk DML operation.
+     */
     public static void updateAllTrailheadUsers() {
     	
     	List<Trailhead_User__c> tUsers = [SELECT Id__c, Name, Badges__c, Points__c FROM Trailhead_User__c];
@@ -147,21 +175,10 @@ public class TrailheadLeaderboardController {
     	}
         
         update tUsersInfo.values();
-
     }
     
-    public PageReference refreshLeaderboard() {
-        
-        updateAllTrailheadUsers();
-     
-        String url = 'http://angelinetamayo-developer-edition.na50.force.com/TrailheadLeaderboard';       
-        PageReference refreshPage = new PageReference(url);
-        refreshPage.setRedirect(true);
-        return refreshPage;       
-    }
-    
-    /*
-     * Sorting methods for records
+    /**
+     * Methods that sort Trailhead User records by field and toggle ascending or descending sort.
      */
     
     public void sortByName() {

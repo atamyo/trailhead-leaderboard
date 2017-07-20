@@ -3,6 +3,8 @@ public class TrailheadLeaderboardController {
     public String sortField = 'Name';
     public String sortIn = 'ASC';
     public String prevSortField = sortField;
+    
+    public String inputUserId {get; set;}
 
     public List<Trailhead_User__c> getTrailheadUsers() {
         
@@ -16,10 +18,12 @@ public class TrailheadLeaderboardController {
     }
     
     public TrailheadLeaderboardController() {
-        
+        this.inputUserId = '';        
     }
     
-    public static Map<String, String> getInfoFromPage(String url) {
+    public static Map<String, String> getInfoFromPage(String userId) {
+        
+        String url = 'https://trailhead.salesforce.com/en/users/profiles/' + userId;
         
         // Set up a map to hold Trailhead user information parsed from their public profile
         Map<String, String> trailheadUserInfo = new Map<String, String>();
@@ -37,6 +41,13 @@ public class TrailheadLeaderboardController {
         PageReference trailheadProfile = new PageReference(url);
         Blob pageSourceBlob = trailheadProfile.getContent();
         String pageSourceStr = pageSourceBlob.toString();
+        
+        // Ensure inputted Trailhead User Id is valid, exit otherwise
+        Matcher errorRegex = Pattern.compile('<title>404 | Salesforce Trailhead</title>').matcher(pageSourceStr);
+        Matcher privateRegex = Pattern.compile('<title>Trailhead | Private profile</title>').matcher(pageSourceStr);
+        if (errorRegex.find() || privateRegex.find()) {
+            return null;
+        }
         
         // Capture user information from page source, and save it to the user information map
         String urlStr = 'https://trailhead.salesforce.com/en/users/profiles/(\\S*)';
@@ -69,6 +80,22 @@ public class TrailheadLeaderboardController {
 
         return trailheadUserInfo;
     }
+    
+    public void addToLeaderboard() {
+        
+        if (isNewUser(this.inputUserId)) {
+            Map<String, String> userInfo = getInfoFromPage(this.inputUserId);
+            
+            if (userInfo != null) {
+                insertTrailheadUser(userInfo);
+            }
+            else {
+                ApexPages.Message invalidUserId = new ApexPages.Message(ApexPages.Severity.ERROR, 'Please enter a valid Trailhead ID.');
+                ApexPages.addMessage(invalidUserId);
+            }         
+        }
+    }
+
     
     public static void insertTrailheadUser(Map<String, String> trailheadUserInfo) {
         	
@@ -103,7 +130,7 @@ public class TrailheadLeaderboardController {
     	// Update all users' Trailhead information
     	for (Trailhead_User__c tUser : tUsers) {
             singleTUserInfo.clear();
-            singleTUserInfo = getInfoFromPage('https://trailhead.salesforce.com/en/users/profiles/' + tUser.Id__c);
+            singleTUserInfo = getInfoFromPage(tUser.Id__c);
     		tUsersInfo.get(tUser.Id__c).Name = singleTUserInfo.get('Name');
             tUsersInfo.get(tUser.Id__c).Badges__c = Integer.valueOf(singleTUserInfo.get('Badges__c').replaceAll(',', ''));
             tUsersInfo.get(tUser.Id__c).Points__c = Integer.valueOf(singleTUserInfo.get('Points__c').replaceAll(',', ''));
@@ -116,12 +143,11 @@ public class TrailheadLeaderboardController {
     public PageReference refreshLeaderboard() {
         
         updateAllTrailheadUsers();
-        
+     
         String url = 'http://angelinetamayo-developer-edition.na50.force.com/TrailheadLeaderboard';       
         PageReference refreshPage = new PageReference(url);
         refreshPage.setRedirect(true);
-        return refreshPage;
-        
+        return refreshPage;       
     }
     
     /*

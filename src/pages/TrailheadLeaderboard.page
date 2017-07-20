@@ -3,7 +3,7 @@
     	<apex:pageBlock title="Trailhead Leaderboard" id="leaderboard">
             <apex:pageMessages/>
             <apex:pageBlockButtons location="top">
-                <apex:input value="{! inputUserId }" id="userIdInput" html-placeholder="Enter Trailhead ID"/>
+                <apex:input value="{! inputUserId }" id="userIdInput" html-placeholder="Enter Trailhead User ID"/>
                 <apex:commandButton value="Add to Leaderboard" action="{! addToLeaderboard }"/>
             </apex:pageBlockButtons> 
             

@@ -1,5 +1,5 @@
 public class TrailheadLeaderboardController {
-    
+        
     public String sortField = 'Name';
     public String sortIn = 'ASC';
     public String prevSortField = sortField;
@@ -82,18 +82,28 @@ public class TrailheadLeaderboardController {
     }
     
     public void addToLeaderboard() {
+        ApexPages.Message invalidUserId = new ApexPages.Message(ApexPages.Severity.ERROR, 'Please enter a valid Trailhead User ID. This is found in the URL of a public Trailhead profile page as an 18-character alphanumeric string (e.g. 0055xxxxxxxxxxxxxx).');
+        ApexPages.Message existingUserId = new ApexPages.Message(ApexPages.Severity.ERROR, 'This user is already in the leaderboard.');        
         
-        if (isNewUser(this.inputUserId)) {
+        // Shoddy User Id validation
+        if (!this.inputUserId.isAlphanumeric()) {
+            ApexPages.addMessage(invalidUserId);            
+        }    
+        else if (isNewUser(this.inputUserId)) {
             Map<String, String> userInfo = getInfoFromPage(this.inputUserId);
             
             if (userInfo != null) {
                 insertTrailheadUser(userInfo);
             }
-            else {
-                ApexPages.Message invalidUserId = new ApexPages.Message(ApexPages.Severity.ERROR, 'Please enter a valid Trailhead ID.');
+            else {      
                 ApexPages.addMessage(invalidUserId);
             }         
         }
+        else {
+            ApexPages.addMessage(existingUserId);
+        }
+        
+        this.inputUserId = ''; // clear Trailhead User ID input text field
     }
 
     

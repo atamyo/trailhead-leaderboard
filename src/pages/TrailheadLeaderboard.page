@@ -3,7 +3,11 @@
     <apex:pageBlock title="Trailhead Leaderboard" id="leaderboard">
         <apex:pageBlockTable value="{! trailheadUsers }" var="tu">
             
-            <apex:column value="{! tu.Name }">
+            <!-- Name Column -->
+            <apex:column>
+                <apex:outputLink value="https://trailhead.salesforce.com/en/users/profiles/{! tu.Id__c }" target="_blank">
+                    {! tu.Name }
+                </apex:outputLink>
                 <apex:facet name="header">
                     <apex:commandLink action="{! sortByName }" reRender="leaderboard">
                         Name
@@ -11,6 +15,7 @@
                 </apex:facet>
             </apex:column>
  
+            <!-- Badge Count Column -->
             <apex:column value="{! tu.Badges__c }">
                 <apex:facet name="header">
                     <apex:commandLink action="{! sortByBadges }" reRender="leaderboard">
@@ -19,6 +24,7 @@
                 </apex:facet>
             </apex:column>
             
+            <!-- Points Column -->
             <apex:column value="{! tu.Points__c }">
                 <apex:facet name="header">
                     <apex:commandLink action="{! sortByPoints }" reRender="leaderboard">

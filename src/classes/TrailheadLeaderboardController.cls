@@ -2,14 +2,12 @@ public class TrailheadLeaderboardController {
     
     public String sortField = 'Name';
     public String sortIn = 'ASC';
-    
     public String prevSortField = sortField;
-    public Integer sortCount = 0;
 
     public List<Trailhead_User__c> getTrailheadUsers() {
         
         List<Trailhead_User__c> results = Database.query(
-            'SELECT Id, Name, Badges__c, Points__c ' +
+            'SELECT Id__c, Name, Badges__c, Points__c ' +
             'FROM Trailhead_User__c ' +
             'ORDER BY ' + sortField + ' ' + sortIn
         );

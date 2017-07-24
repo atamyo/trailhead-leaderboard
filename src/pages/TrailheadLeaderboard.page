@@ -1,16 +1,17 @@
 <apex:page docType="HTML-5.0" controller="TrailheadLeaderboardController" showHeader="false" sidebar="false">
-    <apex:form>
-    	<apex:pageBlock title="Trailhead Leaderboard" id="leaderboard">
-            <apex:pageMessages/>
+    <apex:form >
+    	<apex:pageBlock title="Trailhead Leaderboard">
+            <apex:pageMessages />
             <apex:pageBlockButtons location="top">
                 <apex:input value="{! inputUserId }" id="userIdInput" html-placeholder="Enter Trailhead User ID"/>
                 <apex:commandButton value="Add to Leaderboard" action="{! addToLeaderboard }"/>
             </apex:pageBlockButtons> 
             
-        	<apex:pageBlockTable value="{! trailheadUsers }" var="tu">
+        	<apex:pageBlockTable value="{! trailheadUsers }" var="tu" id="leaderboard">
+                <!-- apex:actionPoller interval="5" action="{! refreshLeaderboard }"/-->
             
             	<!-- Name Column -->
-            	<apex:column>
+            	<apex:column >
 	                <apex:outputLink value="https://trailhead.salesforce.com/en/users/profiles/{! tu.Id__c }" target="_blank">
     	                {! tu.Name }
         	        </apex:outputLink>

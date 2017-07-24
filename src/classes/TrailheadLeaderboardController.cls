@@ -52,7 +52,7 @@ public class TrailheadLeaderboardController {
     }
     
     /**
-     * Checks if Trailhead User already exists in the leaderboard.
+     * Returns true if Trailhead User is not yet in the leaderboard, false otherwise.
      */
     public static Boolean isNewUser(String userId) {
         
@@ -201,7 +201,12 @@ public class TrailheadLeaderboardController {
             toggleSortIn();
         }
         else {
-            sortInAsc();
+            if (this.sortField == 'Name') {
+                sortInAsc();
+            }
+            else {
+                sortInDesc();
+            }
         }
     }
     

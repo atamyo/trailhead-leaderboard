@@ -1,5 +1,5 @@
 public class TrailheadLeaderboardController {
-        
+         
     public String sortField = 'Name';
     public String sortIn = 'ASC';
     public String prevSortField = sortField;
@@ -19,7 +19,7 @@ public class TrailheadLeaderboardController {
     
     public TrailheadLeaderboardController() {
         
-        this.inputUserId = '';        
+        this.inputUserId = '';
     }
     
     /**
@@ -197,10 +197,12 @@ public class TrailheadLeaderboardController {
         this.prevSortField = this.sortField;
         this.sortField = field;
         
+        // User has clicked the same column name
         if (this.prevSortField == this.sortField) {
             toggleSortIn();
         }
         else {
+        	// Sort Name column in ascending order and sort other columns in descending order by default
             if (this.sortField == 'Name') {
                 sortInAsc();
             }

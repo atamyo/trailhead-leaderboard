@@ -2,14 +2,14 @@
     <apex:form >
     	<apex:pageBlock title="Trailhead Leaderboard">
             <apex:pageMessages />
+            
+            <!-- Take user input to add user to leaderboard -->
             <apex:pageBlockButtons location="top">
                 <apex:input value="{! inputUserId }" id="userIdInput" html-placeholder="Enter Trailhead User ID"/>
                 <apex:commandButton value="Add to Leaderboard" action="{! addToLeaderboard }"/>
             </apex:pageBlockButtons> 
             
         	<apex:pageBlockTable value="{! trailheadUsers }" var="tu" id="leaderboard">
-                <!-- apex:actionPoller interval="5" action="{! refreshLeaderboard }"/-->
-            
             	<!-- Name Column -->
             	<apex:column >
 	                <apex:outputLink value="https://trailhead.salesforce.com/en/users/profiles/{! tu.Id__c }" target="_blank">
@@ -41,14 +41,15 @@
             	</apex:column>
             
         	</apex:pageBlockTable>
-            
-            <apex:pageBlockButtons location="bottom">
-                <apex:commandButton value="Refresh Leaderboard Values" action="{! refreshLeaderboard }"/>                
-            </apex:pageBlockButtons>
+        	
+        	<!-- Refresh leaderboard every thirty minutes -->
+        	<apex:actionPoller interval="1800" action="{! refreshLeaderboard }" reRender="leaderboard" />
             
     	</apex:pageBlock>
         
     </apex:form>
     <br />
-    <apex:outputLink value="https://github.com/atamyo/trailhead-leaderboard" target="_blank">Source Code</apex:outputLink>
+    The leaderboard is updated every thirty minutes.
+    <br /><br />
+    <apex:outputLink value="https://github.com/atamyo/trailhead-leaderboard" target="_blank">View Source Code</apex:outputLink>
 </apex:page>

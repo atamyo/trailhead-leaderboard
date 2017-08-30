@@ -12,7 +12,7 @@
 
 <apex:remoteObjects>
     <apex:remoteObjectModel name="Trailhead_User__c" jsShorthand="TrailheadUser" fields="Name">
-        <apex:remoteObjectField name="Id__c" jsShorthand="Id"/>        
+        <apex:remoteObjectField name="Id__c" jsShorthand="UserId"/>        
         <apex:remoteObjectField name="Badges__c" jsShorthand="Badges"/>
         <apex:remoteObjectField name="Points__c" jsShorthand="Points"/>
     </apex:remoteObjectModel>
@@ -127,12 +127,17 @@
                     // Build table body
                     var tableBody = dataTable.appendChild(document.createElement('tbody'));
                     var dataRow, dataRowCell1, dataRowCell2, recordName, recordBadges, recordPoints;
+
                     records.forEach(function(record) {
                         dataRow = tableBody.insertRow();
 
                         dataRowCell1 = dataRow.insertCell(0);
+                        var recordUrl = document.createElement('a');
                         recordName = document.createTextNode(record.get('Name'));
-                        dataRowCell1.appendChild(recordName);
+                        recordUrl.setAttribute('href', 'https://trailhead.salesforce.com/en/users/profiles/' + record.get('UserId'));
+                        recordUrl.setAttribute('target', '_blank')
+                        recordUrl.appendChild(recordName);
+                        dataRowCell1.appendChild(recordUrl);
 
                         dataRowCell2 = dataRow.insertCell(1);
                         recordBadges = document.createTextNode(record.get('Badges'));

@@ -1,55 +1,161 @@
 <apex:page docType="HTML-5.0" controller="TrailheadLeaderboardController" showHeader="false" sidebar="false">
-    <apex:form >
-    	<apex:pageBlock title="Trailhead Leaderboard">
-            <apex:pageMessages />
-            
-            <!-- Take user input to add user to leaderboard -->
-            <apex:pageBlockButtons location="top">
-                <apex:input value="{! inputUserId }" id="userIdInput" html-placeholder="Enter Trailhead User ID"/>
-                <apex:commandButton value="Add to Leaderboard" action="{! addToLeaderboard }"/>
-            </apex:pageBlockButtons> 
-            
-        	<apex:pageBlockTable value="{! trailheadUsers }" var="tu" id="leaderboard">
-            	<!-- Name Column -->
-            	<apex:column >
-	                <apex:outputLink value="https://trailhead.salesforce.com/en/users/profiles/{! tu.Id__c }" target="_blank">
-    	                {! tu.Name }
-        	        </apex:outputLink>
-            	    <apex:facet name="header">
-                	    <apex:commandLink action="{! sortByName }" reRender="leaderboard">
-                    	    Name
-                    	</apex:commandLink>
-                	</apex:facet>
-            	</apex:column>
- 
-            	<!-- Badge Count Column -->
-            	<apex:column value="{! tu.Badges__c }">
-	                <apex:facet name="header">
-    	                <apex:commandLink action="{! sortByBadges }" reRender="leaderboard">
-        	                Badges
-            	        </apex:commandLink>
-	                </apex:facet>
-    	        </apex:column>
-            
-        	    <!-- Points Column -->
-            	<apex:column value="{! tu.Points__c }">
-                	<apex:facet name="header">
-                    	<apex:commandLink action="{! sortByPoints }" reRender="leaderboard">
-                        	Points
-                    	</apex:commandLink>
-                	</apex:facet>
-            	</apex:column>
-            
-        	</apex:pageBlockTable>
-        	
-        	<!-- Refresh leaderboard every thirty minutes -->
-        	<apex:actionPoller interval="1800" action="{! refreshLeaderboard }" reRender="leaderboard" />
-            
-    	</apex:pageBlock>
+<html xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <title>Trailhead Leaderboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    
+    <!-- Import the Design System style sheet -->
+    <apex:slds />
+</head>
+
+<apex:remoteObjects>
+    <apex:remoteObjectModel name="Trailhead_User__c" jsShorthand="TrailheadUser" fields="Name">
+        <apex:remoteObjectField name="Id__c" jsShorthand="Id"/>        
+        <apex:remoteObjectField name="Badges__c" jsShorthand="Badges"/>
+        <apex:remoteObjectField name="Points__c" jsShorthand="Points"/>
+    </apex:remoteObjectModel>
+</apex:remoteObjects>
+
+<body>
+
+    <!-- REQUIRED SLDS WRAPPER -->
+    <div class="slds-scope">
         
-    </apex:form>
-    <br />
-    The leaderboard is updated every thirty minutes.
-    <br /><br />
-    <apex:outputLink value="https://github.com/atamyo/trailhead-leaderboard" target="_blank">View Source Code</apex:outputLink>
+        <!-- MASTHEAD -->
+        <p class="slds-text-heading--label slds-m-bottom--small">
+            Revature June 19 Salesforce Batch
+        </p>
+        <!-- / MASTHEAD -->
+
+        <!-- PAGE HEADER -->
+        <div class="slds-page-header" role="banner">
+            <div class="slds-grid">
+                <div class="slds-col slds-has-flexi-truncate">
+                    <!-- HEADING AREA -->
+                    <p class="slds-text-title--caps slds-line-height--reset">Trailhead Users</p>
+                    <h1 class="slds-text-heading--large slds-truncate" title="Leaderboard">Leaderboard</h1>
+                    <!--div class="slds-media slds-no-space slds-grow">
+                        <div class="slds-media__figure">
+                            <span class="slds-icon_container slds-icon-custom-custom48" title="Description of icon when needed">
+                              <svg class="slds-icon" aria-hidden="true">
+                                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/apexpages/slds/latest/assets/icons/custom-sprite/svg/symbols.svg#custom48"></use>
+                              </svg>
+                              <span class="slds-assistive-text">Trailhead Leaderboard Icon</span>
+                            </span>
+                        </div>
+                        <div class="slds-media__body">
+                            <p class="slds-text-title--caps slds-line-height--reset">Trailhead Users</p>
+                            <h1 class="slds-page-header__title slds-align-middle slds-truncate" title="Leaderboard">Leaderboard</h1>
+                        </div>
+                    </div-->
+                    <!-- / HEADING AREA -->
+                </div>
+                <!--div class="slds-col slds-no-flex slds-grid slds-align-top">
+                    <button class="slds-button slds-button--neutral">Add User</button>
+                </div-->
+            </div>
+            <div class="slds-grid">
+                <div class="slds-col slds-align-bottom slds-p-top--small">
+                    <p class="slds-text-body--small page-header__info">19 Users</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- / PAGE HEADER -->
+
+        <!-- PRIMARY CONTENT WRAPPER -->
+        <div class="leaderboardapp">
+
+            <!-- TRAILHEAD USER LIST TABLE -->
+            <div id="trailhead-user-list" class="slds-p-vertical--medium"></div>
+            <!-- /TRAILHEAD USER LIST TABLE -->
+                
+        </div>
+        <!-- / PRIMARY CONTENT WRAPPER -->
+
+        <!-- FOOTER -->
+        <footer role="contentinfo" class="slds-p-around--large">
+            <!-- LAYOUT GRID -->
+            <div class="slds-grid slds-grid--align-spread">
+                <p class="slds-col"><a href="https://github.com/atamyo/trailhead-leaderboard">Source Code</a></p>
+                <p class="slds-col">&copy; Angeline Tamayo</p>
+            </div>
+            <!-- / LAYOUT GRID -->
+        </footer>
+        <!-- / FOOTER -->
+    </div>
+    <!-- / REQUIRED SLDS WRAPPER -->
+</body>
+<script>
+    (function() {
+        var tu = new SObjectModel.TrailheadUser();
+        var outputDiv = document.getElementById('trailhead-user-list');
+
+        var updateOutputDiv = function() {
+
+            tu.retrieve(
+            { limit: 50 }, function(err, records, event) {
+                if (err) {
+                    alert(err.message);
+                }
+                else {
+                    // Create data table
+                    var dataTable = document.createElement('table');
+                    dataTable.className = 'slds-table slds-table--bordered slds-table--cell-buffer slds-no-row-hover';
+
+                    // Add header row
+                    var tableHeader = dataTable.createTHead();
+                    var tableHeaderRow = tableHeader.insertRow();
+
+                    var tableHeaderRowCell1 = tableHeaderRow.insertCell(0);
+                    tableHeaderRowCell1.appendChild(document.createTextNode('Name'));
+                    tableHeaderRowCell1.setAttribute('scope', 'col');
+                    tableHeaderRowCell1.setAttribute('class', 'slds-text-heading--label');
+
+                    var tableHeaderRowCell2 = tableHeaderRow.insertCell(1);
+                    tableHeaderRowCell2.appendChild(document.createTextNode('Badges'));
+                    tableHeaderRowCell2.setAttribute('scope', 'col');
+                    tableHeaderRowCell2.setAttribute('class', 'slds-text-heading--label');
+
+                    var tableHeaderRowCell3 = tableHeaderRow.insertCell(2);
+                    tableHeaderRowCell3.appendChild(document.createTextNode('Points'));
+                    tableHeaderRowCell3.setAttribute('scope', 'col');
+                    tableHeaderRowCell3.setAttribute('class', 'slds-text-heading--label');
+
+                    // Build table body
+                    var tableBody = dataTable.appendChild(document.createElement('tbody'));
+                    var dataRow, dataRowCell1, dataRowCell2, recordName, recordBadges, recordPoints;
+                    records.forEach(function(record) {
+                        dataRow = tableBody.insertRow();
+
+                        dataRowCell1 = dataRow.insertCell(0);
+                        recordName = document.createTextNode(record.get('Name'));
+                        dataRowCell1.appendChild(recordName);
+
+                        dataRowCell2 = dataRow.insertCell(1);
+                        recordBadges = document.createTextNode(record.get('Badges'));
+                        dataRowCell2.appendChild(recordBadges);
+
+                        dataRowCell3 = dataRow.insertCell(2);
+                        recordPoints = document.createTextNode(record.get('Points'));
+                        dataRowCell3.appendChild(recordPoints);
+                    });
+
+                    if (outputDiv.firstChild) {
+                        // Replace table if it already exists
+                        outputDiv.replaceChild(dataTable, outputDiv.firstChild);
+                    }
+                    else {
+                        outputDiv.appendChild(dataTable);
+                    }
+                }
+            });
+
+        }
+        updateOutputDiv();
+    })();
+</script>
+</html>
 </apex:page>
